@@ -10,7 +10,7 @@ interface ChatBubbleProps {
 
 const ChatBubble: React.FC<ChatBubbleProps> = ({ author, message }) => {
   
-  const isBot = author.includes("AI")
+  const isBot = author.toLowerCase().includes("assistant")
   const userColor = isBot ? "text-blue-600" : "text-slate-400"
   const bg = isBot ? "bg-blue-500" : "bg-gray-400"
   const shadow = isBot ? "border border-blue-500 shadow-sm shadow-blue-500" : ""
@@ -23,7 +23,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ author, message }) => {
       </div>
       <div>
         <div className="flex flex-col ml-4">
-          <h4 className={`font-medium text-sm ${userColor}`}>{author}</h4>
+          <h4 className={`font-medium text-sm ${userColor}`}>{isBot ? "AI Career Consultant" : "User"}</h4>
           <p className="break-words text-sm">{message}</p>
         </div>
       </div>

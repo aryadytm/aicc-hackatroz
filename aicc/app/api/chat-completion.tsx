@@ -1,1 +1,0 @@
-// TODO: Don't use Next API because it uses Vercel Edge Functions which is limited to 30 seconds.
