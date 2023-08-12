@@ -1,5 +1,6 @@
 import Link from "next/link"
 import Messages from "./messages"
+import { Button } from "@/components/ui/button"
 
 export default function Login() {
   return (
@@ -31,11 +32,11 @@ export default function Login() {
         <label className="text-md" htmlFor="password">
           Password
         </label>
-        <input className="rounded-md px-4 py-2 bg-inherit border mb-6" type="password" name="password" placeholder="••••••••" required />
-        <button className="bg-green-700 rounded px-4 py-2 text-white mb-2">Sign In</button>
-        <button formAction="/auth/sign-up" className="border border-gray-700 rounded px-4 py-2 text-black mb-2">
+        <input className="rounded-md px-4 py-2 bg-inherit border mb-8" type="password" name="password" placeholder="••••••••" required />
+        <Button className="">Sign In</Button>
+        <Button formAction="/auth/sign-up" className="border-primary text-primary" variant={"outline"}>
           Sign Up
-        </button>
+        </Button>
         <Messages />
       </form>
       

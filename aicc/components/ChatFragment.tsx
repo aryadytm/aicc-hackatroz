@@ -1,5 +1,3 @@
-"use client"
-
 import { twMerge } from "tailwind-merge"
 import ChatBubble from "./ChatBubble"
 import { Button } from "./ui/button"
@@ -14,6 +12,7 @@ interface ChatFragmentProps {
   onInputChanged?: (event: React.ChangeEvent<HTMLInputElement>) => void
   onButtonClicked?: () => void
   onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void
+  onFinishedTyping: () => any
 }
 
 const ChatFragment: React.FC<ChatFragmentProps> = ({
@@ -24,6 +23,7 @@ const ChatFragment: React.FC<ChatFragmentProps> = ({
   onInputChanged,
   onButtonClicked,
   onKeyDown,
+  onFinishedTyping
 }) => {
   return (
     <div className={twMerge("", className)}>
@@ -37,6 +37,7 @@ const ChatFragment: React.FC<ChatFragmentProps> = ({
                   author={message.role}
                   message={message.content}
                   avatar="" // Add the appropriate avatar here
+                  onFinishedTyping={onFinishedTyping}
                 />
               ))}
           </div>

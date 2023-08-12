@@ -3,6 +3,14 @@
 @tailwind utilities;
  
 @layer base {
+  ul, ol {
+    list-style: outside;
+    margin-left: 1.25rem;
+  }
+  /* li {
+    margin-top: 0.5rem;
+  } */
+  
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;

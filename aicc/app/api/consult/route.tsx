@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 import { ChatOpenAI } from "langchain/chat_models/openai"
 import { HumanMessage, AIMessage, SystemMessage, BaseMessage } from "langchain/schema"
-import { translate } from "@vitalets/google-translate-api"
 import LanguageDetect from "languagedetect"
 import { ChatItem } from "@/lib/models/ChatItem"
 import { sanitizeToASCII } from "@/lib/utils"

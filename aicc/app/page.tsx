@@ -38,17 +38,22 @@ export default async function Index() {
 
   return (
     <div className="w-full flex flex-col items-center">
-      <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
-        <div className="w-full max-w-4xl flex justify-between items-center p-3 text-sm text-foreground">
-          <div />
+      <nav className="w-full flex justify-center h-16">
+        <div className="w-full max-w-4xl flex justify-between items-center p-3 text-foreground">
+          <div className="flex flex-row">
+            <h1 className="text-slate-500 text-xl font-medium ml-4">AI Career Consultant</h1>
+          </div>
           <div>
             {user ? (
-              <div className="flex items-center gap-4">
-                Welcome, {user.email}!
-                <LogoutButton />
-              </div>
+              <Link href="/consult" className="py-2 px-4 rounded-md no-underline bg-btn-background hover:bg-btn-background-hover">
+                <Button>Use App</Button>
+              </Link>
             ) : (
-              <Link href="/login" className="py-2 px-4 rounded-md no-underline bg-btn-background hover:bg-btn-background-hover">
+              // <div className="flex items-center gap-4">
+              //   Welcome, {user.email}!
+              //   <LogoutButton />
+              // </div>
+              <Link href="/consult" className="py-2 px-4 rounded-md no-underline bg-btn-background hover:bg-btn-background-hover">
                 <Button>Use App</Button>
               </Link>
             )}
@@ -56,24 +61,28 @@ export default async function Index() {
         </div>
       </nav>
 
-      <div className="flex flex-col gap-14 max-w-4xl px-3 py-16 lg:py-24 text-foreground">
-        <div className="flex flex-col items-center mb-4 lg:mb-12">
-          <h1 className="text-4xl font-medium">AI Career Consultant</h1>
-          <p className="text-2xl !leading-tight mx-auto max-w-xl text-center my-4">
-            The smartest way to enhance your career
+      <div className="flex flex-col gap-14 max-w-4xl px-3 py-16 lg:py-24 text-foreground md:mx-auto mx-8">
+        <div className="flex flex-col items-center lg:mt-20 mb-4 lg:mb-20">
+          <p className="text-blue-700 border border-blue-700 bg-blue-50 rounded-xl w-fit h-fit mb-4 p-1">New Innovation!</p>
+          <h1 className="text-4xl font-xl font-bold text-center">AI Career Consultant</h1>
+          <p className="text-xl text-slate-500 mx-auto text-center my-4">
+            Ready to take your career to new heights? Introducing AI Career Consultant, the smartest way to enhance your career.
           </p>
-          <Button>Start Using AI Career Consultant</Button>
+          <Link href="/consult">
+            <Button>Get Started</Button>
+          </Link>
         </div>
+      </div>
 
-        <div className="w-full p-[1px] bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
-
-        <div className="flex flex-col gap-8 text-foreground">
-          <h2 className="text-lg font-medium text-center font-primary">We provide everything you need to improve your career.</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="bg-blue-50 min-w-full">
+        <div className="flex flex-col gap-4 text-foreground max-w-4xl mt-20 md:mx-auto mx-8">
+          <h2 className="text-4xl font-xl font-bold text-center">Features</h2>
+          <p className="text-xl text-slate-500 mx-auto text-center my-4">
+            We provide everything you need to improve your career. With our advanced AI, it will help you advance your career.
+          </p>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-2">
             {resources.map(({ title, subtitle, icon: Icon }) => (
-              <p
-                key={title}
-                className="relative flex flex-col group rounded-lg border p-6 hover:border-blue-500">
+              <div key={title} className="relative flex flex-col group rounded-xl p-6 border bg-white">
                 <h3 className="font-bold mb-2 min-h-[40px] lg:min-h-[60px]">{title}</h3>
                 <div className="flex flex-col grow gap-4 justify-between">
                   <p className="text-sm opacity-70">{subtitle}</p>
@@ -81,16 +90,21 @@ export default async function Index() {
                     <Icon size={26} />
                   </div>
                 </div>
-              </p>
+              </div>
             ))}
           </div>
+          <p className="text-xl text-slate-500 mx-auto text-center mt-8 pb-24">Using AI Career Consultant is simple as using OpenAI ChatGPT.</p>
         </div>
+      </div>
 
-        <div className="flex justify-center text-center text-xs">
-          <p>
-            Powered by <b>Team Hackatroz</b>
-          </p>
-        </div>
+      <div className="flex flex-col mt-40 max-w-4xl md:mx-auto mx-8 pb-40">
+        <h2 className="text-4xl font-xl font-bold text-center">Start Using AI Career Consultant Now!</h2>
+        <p className="text-xl text-slate-500 mx-auto text-center my-4">
+          This is a one time opportunity to improve your career. Stop wasting your time and start using this app now.
+        </p>
+        <Link href="/consult" className="mx-auto">
+          <Button>Get Started</Button>
+        </Link>
       </div>
     </div>
   )
