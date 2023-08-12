@@ -4,6 +4,8 @@ import { Skeleton } from "./ui/skeleton"
 import ReactMarkdown from "react-markdown"
 
 
+const msPerWord = 20
+
 interface ChatBubbleProps {
   author: string
   message: string
@@ -27,7 +29,10 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ author, message, onFinishedTypi
   useEffect(() => {
     if (!isBot) {
       setDisplayMessage(message)
-      onFinishedTyping()
+      return;
+    }
+    
+    if (message.length === 0) {
       return;
     }
     
@@ -38,17 +43,26 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ author, message, onFinishedTypi
     
     const timer = setInterval(() => {
       if (index < thisMessage.length - 1) {
-        console.log(index)
         setDisplayMessage((prev) => prev + thisMessage[index])
         index++
       } else {
         clearInterval(timer)
         onFinishedTyping()
       }
-    }, 20)
+    }, msPerWord)
     
     return () => clearInterval(timer)
-  }, [message])
+  }, [ message ])
+  
+  // useEffect(() => {
+  //   const timer = setInterval(() => {
+  //     if (!isBot) {
+  //       return;
+  //     }
+  //     onFinishedTyping()
+  //   }, msPerWord * message.length)
+  //   return () => clearInterval(timer)
+  // }, [])
 
   return (
     <div className={`flex flex-row mb-4 mt-4 max-w-3xl mx-auto bg-white p-4 rounded-2xl ${shadow}`}>
@@ -57,7 +71,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ author, message, onFinishedTypi
       </div>
       <div>
         <div className="flex flex-col ml-4">
-          <h4 className={`font-medium text-sm ${userColor}`}>{isBot ? "AI Career Consultant" : "User"}</h4>
+          <h4 className={`font-medium text-sm ${userColor}`}>{isBot ? "AI Career Consultant" : "You"}</h4>
           <p className="break-words text-sm list-inside">
             {displayMessage.length === 0 ? (
               <Skeleton className="w-full h-4 rounded-full bg-blue-200" />

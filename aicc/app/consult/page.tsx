@@ -1,5 +1,9 @@
 "use client"
 
+// TODO: 
+// Fix sidebar hidden by default on md +
+// Introduce scroll to bottom after click ask
+
 import ChatFragment from "@/components/ChatFragment"
 import ChatSidebar from "@/components/ChatSidebar"
 import { Button } from "@/components/ui/button"
