@@ -12,25 +12,17 @@ const chatLLM = new ChatOpenAI({
     },
     temperature: 0.7,
     topP: 0.95,
-    maxTokens: 1024,
+    maxTokens: 512,
 })
 
 export async function chatCompletion(
     messages: ChatItem[],
     onToken: (token: string) => void,
     onLLMEnd: (output: LLMResult) => void,
+    onFinished: () => void,
 ) {
-    const message = sanitizeToASCII(messages[ messages.length - 1 ].content)
-
+    
     try {
-        // Translate to English
-        // const detection = langDetect.detect(message)[ 0 ][ 0 ]
-
-        // if (detection !== "en") {
-        //   const translation = await translate(message, { to: "en" })
-        //   messages[messages.length - 1].content = translation.text
-        // }
-
         // Get responses from AI
         const convMessages = convertMessages(messages)
         const response = await chatLLM.call(convMessages, {
@@ -41,20 +33,15 @@ export async function chatCompletion(
                     },
                     handleLLMEnd(output: LLMResult) {
                         onLLMEnd(output)
-                    }
+                    },
                 }
             ]
         })
-
-        // Translate the response back to the original language
-        // if (detection !== "en") {
-        //   const answer = await translate(response.content.trim(), { to: detection })
-        //   return answer.text
-        // } 
-
+        onFinished()
         return response.content.trim()
     }
     catch (error) {
+        onFinished()
         return `Error when getting answers from AI. Please try again later. (${error})`
     }
 }

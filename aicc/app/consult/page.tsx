@@ -87,7 +87,7 @@ export default function Consult() {
 
     setInput("")
     setAskButtonEnabled(false)
-    setMessages([...messages, { role: "user", content: userMessage.slice(0, 1000) }, { role: "assistant", content: "" }])
+    setMessages([ ...messages, { role: "user", content: userMessage.slice(0, 1000) }, { role: "assistant", content: "" } ])
 
     const getLastNMessages = (n: number) => {
       // Get last N messages except the first one in the messages array
@@ -97,19 +97,24 @@ export default function Consult() {
     const promptMessages: ChatItem[] = [
       {
         role: "user",
-        content: `You need to act as AI Career Consultant developed by Team Hackatroz for BINUS Hackathon SOCS 2023. The user will give you the CV or Portfolio, then they can ask anything about the CV or Portfolio. IMPORTANT: Do not answer questions that are out of the scope of AI Career Consultant.`,
+        content:
+          `You need to act as AI Career Consultant developed by Team Hackatroz for BINUS Hackathon SOCS 2023. The user will give you the CV or Portfolio, then they can ask anything about the CV or Portfolio. IMPORTANT: Do not answer questions that are out of the scope of AI Career Consultant.` +
+          `AI Career Consultant Scopes: Review CV's strength and weakness, and how to overcome them. Suggest best position and company based on CV. Recommend training and courses to improve skills. Ask for interview simulation by generating related interview questions. And more career consulting topics.`,
       },
       {
         role: "assistant",
-        content: `Sure, I can help you with that. Please upload your CV or Portfolio in PDF format. I will analyze it and then you can ask me anything about your CV or Portfolio. Make sure the document is CV and you must not ask anything that is out of the scope of AI Career Consultant.`,
+        content: `Sure, I can help you with that. Please upload your CV or portfolio in plain text. I will analyze it and then we can discuss about your career CV or portfolio. Make sure the document is CV and we must not discuss anything that is out of the scope of career consulting.`,
       },
       {
         role: "user",
-        content: `uploaded_document = """${cvText.slice(0, 8000)}"""\n\n(SYSTEM NOTE: This is AI Career Consultant program that responds based on uploaded_document. If user_input or uploaded_document is not related to career consulting, please reject it politely)`,
+        content: `uploaded_document = """${cvText.slice(
+          0,
+          8000
+        )}"""\n\n(SYSTEM NOTE: This is AI Career Consultant program that responds based on uploaded_document. If user_input or uploaded_document is not related to career consulting, please reject it politely)`,
       },
       {
         role: "assistant",
-        content: `Thank you for uploading your CV. Now you can ask me anything about your CV or Portfolio. Make sure the question is related to your career. If you ask anything that is out of the scope of AI Career Consultant, I will reject it politely.`,
+        content: `Thank you for uploading the document. Now we can discuss about career consulting and your CV. Please don't talk anything that is out of the scope of career consulting.`,
       },
       ...getLastNMessages(5),
       {
@@ -122,17 +127,20 @@ export default function Consult() {
 
     let fullText = ""
 
-    const completion = await chatCompletion(
+    chatCompletion(
       promptMessages,
       (token: string) => {
         // On LLM New Token Streaming
         fullText += token
-        setMessages([...messages, { role: "user", content: userMessage }, { role: "assistant", content: fullText.trim() }])
-        console.log(token)
+        setMessages([ ...messages, { role: "user", content: userMessage }, { role: "assistant", content: fullText.trim() } ])
       },
       (output: LLMResult) => {
         // LLM End
-        setMessages([...messages, { role: "user", content: userMessage }, { role: "assistant", content: output.generations[0][0].text.trim() }])
+        setMessages([ ...messages, { role: "user", content: userMessage }, { role: "assistant", content: output.generations[ 0 ][ 0 ].text.trim() } ])
+        setAskButtonEnabled(true)
+      },
+      () => {
+        // On Finish
         setAskButtonEnabled(true)
       }
     )
@@ -182,8 +190,9 @@ export default function Consult() {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex flex-row bg-white w-full h-12 items-center">
-        <RxHamburgerMenu className="ml-4" onClick={toggleSidebar} />
-        <p className="text-slate-500 text-l font-medium ml-4">AI Career Consultant</p>
+        <RxHamburgerMenu className="block ml-4 md:hidden" onClick={toggleSidebar} />
+        <img src="/aicc-logo.jpg" alt="AI Career Consultant Logo" className="w-16 ml-6" />
+        <p className="text-slate-500 text-l font-medium ml-2 hidden md:block">AI Career Consultant</p>
         <p className="text-blue-700 text-xs border border-blue-700 bg-blue-50 rounded-xl px-1 ml-2 w-fit h-fit">Consult</p>
       </div>
 
@@ -205,8 +214,16 @@ export default function Consult() {
             className={`${
               !isSidebarOpen ? "hidden" : "flex"
             } md:flex flex-grow flex-col gap-2 h-fit m-auto max-w-xs md:max-w-xl bg-white p-4 rounded-2xl`}>
-            <p className="font-bold">Upload Your CV</p>
-            <p className="">Before you can consult you career with the AI, please upload your CV in PDF.</p>
+            <p className="font-bold mt-2">Use Your LinkedIn Profile</p>
+            <p className="">Before you can consult you career with the AI, please provide your LinkedIn URL.</p>
+            <Input
+              id="input_linkedin_profile"
+              type="url"
+              placeholder="https://www.linkedin.com/in/YOUR-USER-NAME"
+              onChange={(event) => setLinkedinUrl(event.target.value)}
+            />
+            <p className="font-bold mt-8">OR Upload Your CV File</p>
+            <p className="">You can also upload your CV file in PDF format.</p>
             <Input
               className="rounded-full bg-green-100 hover:bg-green-200 border-none"
               id="file_cv"
@@ -214,20 +231,11 @@ export default function Consult() {
               accept="application/pdf"
               onChange={onCVFileInputChanged}
             />
-            <p className="font-bold mt-8">OR Use A LinkedIn Profile</p>
-            <p className="">You can also use your LinkedIn profile to consult your career.</p>
-            <Input
-              id="input_linkedin_profile"
-              type="url"
-              placeholder="https://www.linkedin.com/in/YOUR-USER-NAME"
-              onChange={(event) => setLinkedinUrl(event.target.value)}
-            />
-            <Button className="mt-4" onClick={onClickConsultButton} disabled={isLoading}>
+
+            <Button className="mt-8" onClick={onClickConsultButton} disabled={isLoading}>
               Consult
-              </Button>
-              {isLoading && (
-                <p className="mt-2 text-sm text-slate-800">Reading your CV...</p>
-              )}
+            </Button>
+            {isLoading && <p className="mt-2 text-sm text-slate-800">Reading your CV...</p>}
             <p className="text-red-500 mt-2 text-sm">{errorMessage}</p>
           </div>
         )}

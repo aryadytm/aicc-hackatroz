@@ -68,9 +68,14 @@ export async function convertPDFToText(file) {
 
 export function getLinkedinUsername(url: string): string {
   // Regular expression pattern to match LinkedIn usernames
-  const pattern = /^https?:\/\/(www\.)?linkedin\.com\/in\/([^\/?]+)/
+  // This pattern will match:
+  // 1. with or without a protocol (http/https)
+  // 2. with or without 'www' subdomain
+  // 3. with or without country-based subdomain (like 'id')
+  // 4. and extract the username after '/in/'
+  const pattern = /^https?:\/\/(?:[a-z]{2}\.)?(?:www\.)?linkedin\.com\/in\/([^\/?]+)/
   const matches = url.match(pattern)
 
-  // If a match is found, return the username (second capturing group)
-  return matches && matches[2] ? matches[2] : ""
+  // If a match is found, return the username (first capturing group)
+  return matches && matches[1] ? matches[1] : ""
 }

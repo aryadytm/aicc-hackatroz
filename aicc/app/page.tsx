@@ -1,8 +1,10 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { FaBusinessTime, FaBriefcase, FaWrench } from "react-icons/fa6"
 import { Button } from "@/components/ui/button"
+import { useState } from "react"
 
 // export const dynamic = "force-dynamic"
 
@@ -24,14 +26,22 @@ const resources = [
   },
 ]
 
+
+const srcs = [
+  "https://www.youtube.com/embed/H0-MVDa4A8k?si=egk6DxSAEJuCAqvQ",
+  // "https://www.youtube.com/embed/UkUiQRquVnI?si=rQh0WDmWPZ9l81y-"
+]
+
 export default function Landing() {
-  
+  const [srcIndex, setSrcIndex] = useState(Math.floor(Math.random() * srcs.length))
+
   return (
     <div className="w-full flex flex-col items-center">
       <nav className="w-full flex justify-center h-16">
         <div className="w-full max-w-4xl flex justify-between items-center p-3 text-foreground">
           <div className="flex flex-row items-center">
-            <p className="text-slate-500 text-l font-medium ml-4">AI Career Consultant</p>
+            <img src="/aicc-logo.jpg" alt="AI Career Consultant Logo" className="w-24" />
+            <p className="text-slate-500 text-l font-medium ml-4 hidden md:block">AI Career Consultant</p>
             <p className="text-green-700 text-xs border border-green-700 bg-blue-50 rounded-xl w-fit h-fit ml-2 p-1">New!</p>
           </div>
           <div>
@@ -56,7 +66,7 @@ export default function Landing() {
             className="mt-8 mx-auto max-w-sm md:max-w-4xl md:max-h-full rounded-2xl shadow-xl max-h-56"
             width="720"
             height="405"
-            src="https://www.youtube.com/embed/UkUiQRquVnI?si=rQh0WDmWPZ9l81y-"
+            src={srcs[srcIndex]}
             title="AI Career Consultant Demo Video"
             frameborder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
