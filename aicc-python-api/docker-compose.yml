@@ -1,12 +1,14 @@
-version: "3"
+---
+version: '3'
 services:
   aicc-python-api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    restart: always
-    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    build: .
+    container_name: aicc-python-api
+    restart: unless-stopped
     volumes:
-      - .:/app
+    - .:/workdir
+    environment:
+    - TZ=Asia/Jakarta
+    command: sh -c "cd /workdir && sudo apt update -y && cat packages.txt | xargs sudo apt install -y && pip install -r requirements.txt && python main.py"
+    ports:
+	      - 0.0.0.0:51323:51323

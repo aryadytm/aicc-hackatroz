@@ -1,5 +1,6 @@
 from fastapi import FastAPI, UploadFile, HTTPException
 from fastapi.param_functions import File
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 from linkedin_scraper import get_linkedin_profile
@@ -7,10 +8,23 @@ from pdf_to_text import get_text_from_pdf
 
 app = FastAPI()
 
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # allows all methods
+    allow_headers=["*"],  # allows all headers
+)
 
-@app.get("/profile/{profile_url}")
-def get_profile(profile_url: str) -> dict:
-    result = get_linkedin_profile(profile_url)
+@app.get("/ping")
+def ping() -> dict:
+    return {"result": "pong"}
+
+
+@app.get("/linkedin_profile/{username}")
+def get_profile(username: str) -> dict:
+    result = get_linkedin_profile(username)
     
     if len(str(result)) < 10:
         raise HTTPException(status_code=400, detail="Linkedin profile not found or backend server error.")

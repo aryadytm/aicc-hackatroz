@@ -9,7 +9,7 @@ import React, { useEffect, useState, useRef } from "react"
 import { RxHamburgerMenu } from "react-icons/rx"
 import { ChatItem } from "@/lib/models/ChatItem"
 import { Input } from "@/components/ui/input"
-import { convertPDFToText } from "@/lib/utils" // Import the PDF conversion utility
+import { convertPDFToText, getLinkedinUsername } from "@/lib/utils" // Import the PDF conversion utility
 import { chatCompletion } from "@/lib/chat-completion"
 import { LLMResult } from "langchain/schema"
 
@@ -17,47 +17,104 @@ const initialMessages: ChatItem[] = []
 
 export default function Consult() {
   // Pre Consult
-  const [ errorMessage, setErrorMessage ] = useState("")
-  const [ linkedinUrl, setLinkedinUrl ] = useState("")
-
+  const [errorMessage, setErrorMessage] = useState("")
+  const [linkedinUrl, setLinkedinUrl] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  
   // Chat
-  const [ messages, setMessages ] = useState(initialMessages)
-  const [ cvText, setCvText ] = useState("")
-  const [ input, setInput ] = useState("")
-  const [ isSidebarOpen, setIsSidebarOpen ] = useState(true)
-  const [ isAskButtonEnabled, setAskButtonEnabled ] = useState(true)
-
+  const [messages, setMessages] = useState(initialMessages)
+  const [cvText, setCvText] = useState("")
+  const [userMessage, setInput] = useState("")
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [isAskButtonEnabled, setAskButtonEnabled] = useState(true)
+  
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen)
   }
 
-  const onTextInputChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onChatTextInputChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInput(event.target.value)
   }
+  
+  const onCVFileInputChanged = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      setIsLoading(true)
+      const text = await convertPDFToText(file)
 
-  const onAskButtonClicked = async () => {
-    if (input.length === 0) {
+      if (text.length === 0) {
+        setErrorMessage(
+          "Error: The uploaded CV doesn't contain text. The CV file may be an image, we don't support that right now. Please upload a file that contains text."
+        )
+        return
+      }
+
+      startConsulting(text)
+    } else {
+      setIsLoading(false)
+      setErrorMessage("Error reading uploaded CV file.")
+    }
+  }
+  
+  const onClickConsultButton = async () => {
+    if (linkedinUrl.length === 0) {
+      return
+    }
+    // Fetch the LinkedIn profile using our backend service
+    try {
+      setIsLoading(true)
+      const linkedinUsername = getLinkedinUsername(linkedinUrl)
+      const linkedin_api_url = "https://aicc-python-api.bytebooster.dev"
+      const response = await fetch(`${linkedin_api_url}/linkedin_profile/${linkedinUsername}`)
+      const data = await response.json()
+
+      if (data && data.result) {
+        startConsulting(data.result)
+      } else {
+        setIsLoading(false)
+        setErrorMessage("Error fetching LinkedIn profile. Please make sure the URL is correct and try again.")
+      }
+    } catch (error) {
+      setIsLoading(false)
+      setErrorMessage("Error fetching LinkedIn profile. Please make sure the URL is correct and try again.")
+    }
+  }
+
+  const onClickAskButton = async () => {
+    if (userMessage.length === 0) {
       return
     }
 
     setInput("")
     setAskButtonEnabled(false)
-    setMessages([ ...messages, { role: "user", content: input }, { role: "assistant", content: "" } ])
+    setMessages([...messages, { role: "user", content: userMessage.slice(0, 1000) }, { role: "assistant", content: "" }])
 
+    const getLastNMessages = (n: number) => {
+      // Get last N messages except the first one in the messages array
+      return messages.slice(-n).slice(1)
+    }
+    
     const promptMessages: ChatItem[] = [
       {
         role: "user",
-        content: `You need to act as AI Career Consultant developed by Arya Adyatma. I give you the CV or Portfolio, then I can ask anything about the CV or Portfolio. IMPORTANT: Do not answer questions that are out of the scope of AI Career Consultant.\n\n`,
+        content: `You need to act as AI Career Consultant developed by Team Hackatroz for BINUS Hackathon SOCS 2023. The user will give you the CV or Portfolio, then they can ask anything about the CV or Portfolio. IMPORTANT: Do not answer questions that are out of the scope of AI Career Consultant.`,
       },
       {
         role: "assistant",
-        content:
-          "Hi, I'm AI Career Consultant, and I have received your uploaded document. Now you can ask me anything about careers and your CV. Please don't talk anything outside of career consulting.",
+        content: `Sure, I can help you with that. Please upload your CV or Portfolio in PDF format. I will analyze it and then you can ask me anything about your CV or Portfolio. Make sure the document is CV and you must not ask anything that is out of the scope of AI Career Consultant.`,
       },
-      ...messages.slice(1),
       {
         role: "user",
-        content: `uploaded_document = "${cvText}" user_input = "${input}" (SYSTEM NOTE: This is AI Career Consultant program that responds based on uploaded_document. If user_input is not related to career consulting or the uploaded_document, please reject it politely)`,
+        content: `uploaded_document = "${cvText.slice(0, 8000)}"\n\n(SYSTEM NOTE: This is AI Career Consultant program that responds based on uploaded_document. If user_input or uploaded_document is not related to career consulting, please reject it politely)`,
+      },
+      {
+        role: "assistant",
+        content: `Thank you for uploading your CV. Now you can ask me anything about your CV or Portfolio. Make sure the question is related to your career. If you ask anything that is out of the scope of AI Career Consultant, I will reject it politely.`,
+      },
+      ...getLastNMessages(5),
+      {
+        role: "user",
+        content: `${userMessage}}`,
       },
     ]
 
@@ -70,12 +127,12 @@ export default function Consult() {
       (token: string) => {
         // On LLM New Token Streaming
         fullText += token
-        setMessages([ ...messages, { role: "user", content: input }, { role: "assistant", content: fullText.trim() } ])
+        setMessages([...messages, { role: "user", content: userMessage }, { role: "assistant", content: fullText.trim() }])
         console.log(token)
       },
       (output: LLMResult) => {
         // LLM End
-        setMessages([ ...messages, { role: "user", content: input }, { role: "assistant", content: output.generations[ 0 ][ 0 ].text.trim() } ])
+        setMessages([...messages, { role: "user", content: userMessage }, { role: "assistant", content: output.generations[0][0].text.trim() }])
         setAskButtonEnabled(true)
       }
     )
@@ -84,68 +141,44 @@ export default function Consult() {
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter" && isAskButtonEnabled) {
       event.preventDefault()
-      onAskButtonClicked()
+      onClickAskButton()
     }
   }
 
   const onFinishedTyping = () => {
-    setAskButtonEnabled(true)
+    // setAskButtonEnabled(true)
   }
 
   const downloadChat = () => {
+    if (cvText.length === 0) {
+      return
+    }
     const chatText = messages.map((message) => `${message.role}: ${message.content}`).join("\n") // Convert messages array to text format
     const element = document.createElement("a")
-    const file = new Blob([ chatText ], { type: "text/plain" })
+    const currentDate = new Date()
+    const formattedDate = currentDate.toISOString().slice(0, 19).replace(/[-T]/g, "_").replace(/:/g, "-")
+    const filename = `AI-Career-Consultation_${formattedDate}.txt`
+    const file = new Blob([chatText], { type: "text/plain" })
     element.href = URL.createObjectURL(file)
-    element.download = "consultation.txt"
+    element.download = filename
     document.body.appendChild(element)
     element.click()
   }
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[ 0 ]
-    if (file) {
-      const text = await convertPDFToText(file)
-
-      if (text.length === 0) {
-        setErrorMessage("Error: The uploaded CV doesn't contain text. The CV file may be an image, we don't support that right now. Please upload a file that contains text.")
-        return
-      }
-      
-      startConsulting(text)
-    } else {
-      setErrorMessage("Error reading uploaded CV file.")
-    }
-  }
-
-  const handleClickConsult = async () => {
-    // First, fetch the LinkedIn profile then convert it to plain text
-    try {
-      const response = await fetch(linkedinUrl)
-      const html = await response.text()
-      const doc = new DOMParser().parseFromString(html, "text/html")
-      const linkedinPlainText = doc.body.innerText
-    } catch (error) {
-      console.error(error)
-      setErrorMessage("Error fetching LinkedIn profile. Please make sure the URL is correct and try again.")
-      return
-    }
-
-    setMessages(result.chatItems)
-    setCvText(linkedinPlainText)
-    setAskButtonEnabled(true)
-  }
-  
   const startConsulting = async (uploadedCvText: string) => {
+    setIsLoading(false)
     setErrorMessage("")
     setAskButtonEnabled(true)
     setCvText(uploadedCvText)
     setMessages([
       // { role: "assistant", content: `Upload CV Success. Here is your CV: ${text}` }
-      { role: "assistant", content: "Hello, I have received your uploaded CV. Now you're ready to consult with me regarding your career. Please ask me anything." },
+      {
+        role: "assistant",
+        content: "Hello, I have received your uploaded CV. Now you're ready to consult with me regarding your career. Please ask me anything.",
+      },
     ])
   }
-  
+
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex flex-row bg-white w-full h-12 items-center">
@@ -160,30 +193,43 @@ export default function Consult() {
           <ChatFragment
             messages={messages}
             className={`${!isSidebarOpen ? "hidden" : "flex"} md:flex flex-auto flex-col max-h-screen`}
-            messageFieldValue={input}
+            messageFieldValue={userMessage}
             isButtonEnabled={isAskButtonEnabled}
-            onInputChanged={onTextInputChanged}
-            onButtonClicked={onAskButtonClicked}
+            onInputChanged={onChatTextInputChanged}
+            onButtonClicked={onClickAskButton}
             onKeyDown={onKeyDown}
             onFinishedTyping={onFinishedTyping}
           />
         ) : (
-            <div className={`${!isSidebarOpen ? "hidden" : "flex"} md:flex flex-grow flex-col gap-2 h-fit m-auto max-w-xs md:max-w-xl bg-white p-4 rounded-2xl`}>
-              <p className="font-bold">Upload Your CV</p>
-              <p className="">Before you can consult you career with the AI, please upload your CV in PDF.</p>
-              <Input
-                className="rounded-full bg-green-100 hover:bg-green-200 border-none"
-                id="file_cv"
-                type="file"
-                accept="application/pdf"
-                onChange={handleFileChange}
-              />
-              <p className="font-bold mt-8">OR Use A LinkedIn Profile</p>
-              <p className="">You can also use your LinkedIn profile to consult your career.</p>
-              <Input id="input_linkedin_profile" type="url" placeholder="https://www.linkedin.com/in/YOUR_USER_NAME" onChange={(event) => setLinkedinUrl(event.target.value)} />
-              <Button className="mt-4">Consult</Button>
-              <p className="text-red-500 mt-2 text-sm">{errorMessage}</p>
-            </div>
+          <div
+            className={`${
+              !isSidebarOpen ? "hidden" : "flex"
+            } md:flex flex-grow flex-col gap-2 h-fit m-auto max-w-xs md:max-w-xl bg-white p-4 rounded-2xl`}>
+            <p className="font-bold">Upload Your CV</p>
+            <p className="">Before you can consult you career with the AI, please upload your CV in PDF.</p>
+            <Input
+              className="rounded-full bg-green-100 hover:bg-green-200 border-none"
+              id="file_cv"
+              type="file"
+              accept="application/pdf"
+              onChange={onCVFileInputChanged}
+            />
+            <p className="font-bold mt-8">OR Use A LinkedIn Profile</p>
+            <p className="">You can also use your LinkedIn profile to consult your career.</p>
+            <Input
+              id="input_linkedin_profile"
+              type="url"
+              placeholder="https://www.linkedin.com/in/YOUR-USER-NAME"
+              onChange={(event) => setLinkedinUrl(event.target.value)}
+            />
+            <Button className="mt-4" onClick={onClickConsultButton} disabled={isLoading}>
+              Consult
+              </Button>
+              {isLoading && (
+                <p className="mt-2 text-sm text-slate-800">Reading your CV...</p>
+              )}
+            <p className="text-red-500 mt-2 text-sm">{errorMessage}</p>
+          </div>
         )}
       </div>
     </div>

@@ -1,13 +1,10 @@
-FROM python:3.9
+FROM mcr.microsoft.com/devcontainers/python:1-3.10-bullseye
 
-WORKDIR /app
-
-COPY requirements.txt .
-
+# Additional production commands
+WORKDIR /workdir
+COPY . /workdir
+RUN chmod -R 777 *
 RUN pip install -r requirements.txt
 
-COPY . .
-
 RUN apt update -y
-
 RUN apt install -y tesseract-ocr tesseract-ocr-eng
