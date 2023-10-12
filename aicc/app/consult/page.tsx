@@ -105,7 +105,7 @@ export default function Consult() {
       },
       {
         role: "user",
-        content: `uploaded_document = "${cvText.slice(0, 8000)}"\n\n(SYSTEM NOTE: This is AI Career Consultant program that responds based on uploaded_document. If user_input or uploaded_document is not related to career consulting, please reject it politely)`,
+        content: `uploaded_document = """${cvText.slice(0, 8000)}"""\n\n(SYSTEM NOTE: This is AI Career Consultant program that responds based on uploaded_document. If user_input or uploaded_document is not related to career consulting, please reject it politely)`,
       },
       {
         role: "assistant",
@@ -114,7 +114,7 @@ export default function Consult() {
       ...getLastNMessages(5),
       {
         role: "user",
-        content: `${userMessage}}`,
+        content: `user_input = """${userMessage}"""`,
       },
     ]
 
