@@ -7,9 +7,9 @@
     list-style: outside;
     margin-left: 1.25rem;
   }
-  /* li {
-    margin-top: 0.5rem;
-  } */
+  li {
+    margin-bottom: 0.5rem;
+  }
   
   :root {
     --background: 0 0% 100%;

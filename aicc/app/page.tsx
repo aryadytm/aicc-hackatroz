@@ -1,15 +1,10 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
-import Link from 'next/link'
-import LogoutButton from '../components/LogoutButton'
-import SupabaseLogo from '../components/SupabaseLogo'
-import NextJsLogo from '../components/NextJsLogo'
-import { FaBusinessTime, FaBriefcase, FaWrench } from 'react-icons/fa6'
-import { Wrench } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+"use client"
 
+import Link from "next/link"
+import { FaBusinessTime, FaBriefcase, FaWrench } from "react-icons/fa6"
+import { Button } from "@/components/ui/button"
 
-export const dynamic = 'force-dynamic'
+// export const dynamic = "force-dynamic"
 
 const resources = [
   {
@@ -29,41 +24,27 @@ const resources = [
   },
 ]
 
-export default async function Index() {
-  const supabase = createServerComponentClient({ cookies })
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
+export default function Landing() {
+  
   return (
     <div className="w-full flex flex-col items-center">
       <nav className="w-full flex justify-center h-16">
         <div className="w-full max-w-4xl flex justify-between items-center p-3 text-foreground">
-          <div className="flex flex-row">
-            <h1 className="text-slate-500 text-xl font-medium ml-4">AI Career Consultant</h1>
+          <div className="flex flex-row items-center">
+            <p className="text-slate-500 text-l font-medium ml-4">AI Career Consultant</p>
+            <p className="text-green-700 text-xs border border-green-700 bg-blue-50 rounded-xl w-fit h-fit ml-2 p-1">New!</p>
           </div>
           <div>
-            {user ? (
-              <Link href="/consult" className="py-2 px-4 rounded-md no-underline bg-btn-background hover:bg-btn-background-hover">
-                <Button>Use App</Button>
-              </Link>
-            ) : (
-              // <div className="flex items-center gap-4">
-              //   Welcome, {user.email}!
-              //   <LogoutButton />
-              // </div>
-              <Link href="/consult" className="py-2 px-4 rounded-md no-underline bg-btn-background hover:bg-btn-background-hover">
-                <Button>Use App</Button>
-              </Link>
-            )}
+            <Link href="/consult" className="py-2 px-4 rounded-md no-underline bg-btn-background hover:bg-btn-background-hover">
+              <Button>Use App</Button>
+            </Link>
           </div>
         </div>
       </nav>
 
       <div className="flex flex-col gap-14 max-w-4xl px-3 py-16 lg:py-24 text-foreground md:mx-auto mx-8">
         <div className="flex flex-col items-center lg:mt-20 mb-4 lg:mb-20">
-          <p className="text-blue-700 border border-blue-700 bg-blue-50 rounded-xl w-fit h-fit mb-4 p-1">New Innovation!</p>
+          <p className="text-purple-700 border border-purple-700 bg-blue-50 rounded-xl w-fit h-fit mb-4 p-1">New Innovation!</p>
           <h1 className="text-4xl font-xl font-bold text-center">AI Career Consultant</h1>
           <p className="text-xl text-slate-500 mx-auto text-center my-4">
             Ready to take your career to new heights? Introducing AI Career Consultant, the smartest way to enhance your career.
@@ -71,6 +52,15 @@ export default async function Index() {
           <Link href="/consult">
             <Button>Get Started</Button>
           </Link>
+          <iframe
+            className="mt-8 mx-auto max-w-sm md:max-w-4xl md:max-h-full rounded-2xl shadow-xl max-h-56"
+            width="720"
+            height="405"
+            src="https://www.youtube.com/embed/UkUiQRquVnI?si=rQh0WDmWPZ9l81y-"
+            title="AI Career Consultant Demo Video"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen></iframe>
         </div>
       </div>
 

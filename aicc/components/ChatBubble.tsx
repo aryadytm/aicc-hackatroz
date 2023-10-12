@@ -20,49 +20,39 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ author, message, onFinishedTypi
   const shadow = isBot ? "border border-blue-500 shadow-sm shadow-blue-500" : ""
   const Icon = isBot ? FaRobot : FaUser
 
-  const [displayMessage, setDisplayMessage] = useState("")
+  // const [displayMessage, setDisplayMessage] = useState(message)
 
   // Reenable button after 50ms * number of characters
   // Double the second character
   // Remove the undefined
   
-  useEffect(() => {
-    if (!isBot) {
-      setDisplayMessage(message)
-      return;
-    }
-    
-    if (message.length === 0) {
-      return;
-    }
-    
-    let thisMessage = message
-    thisMessage = thisMessage.substring(0, 1) + thisMessage.charAt(1) + thisMessage.charAt(1) + thisMessage.substring(2)
-
-    let index = 0
-    
-    const timer = setInterval(() => {
-      if (index < thisMessage.length - 1) {
-        setDisplayMessage((prev) => prev + thisMessage[index])
-        index++
-      } else {
-        clearInterval(timer)
-        onFinishedTyping()
-      }
-    }, msPerWord)
-    
-    return () => clearInterval(timer)
-  }, [ message ])
-  
   // useEffect(() => {
+  //   if (!isBot) {
+  //     setDisplayMessage(message)
+  //     return;
+  //   }
+    
+  //   if (message.length === 0) {
+  //     return;
+  //   }
+    
+  //   let thisMessage = message
+  //   thisMessage = thisMessage.substring(0, 1) + thisMessage.charAt(1) + thisMessage.charAt(1) + thisMessage.substring(2)
+
+  //   let index = 0
+    
   //   const timer = setInterval(() => {
-  //     if (!isBot) {
-  //       return;
+  //     if (index < thisMessage.length - 1) {
+  //       setDisplayMessage((prev) => prev + thisMessage[index])
+  //       index++
+  //     } else {
+  //       clearInterval(timer)
+  //       onFinishedTyping()
   //     }
-  //     onFinishedTyping()
-  //   }, msPerWord * message.length)
+  //   }, msPerWord)
+    
   //   return () => clearInterval(timer)
-  // }, [])
+  // }, [ message ])
 
   return (
     <div className={`flex flex-row mb-4 mt-4 max-w-3xl mx-auto bg-white p-4 rounded-2xl ${shadow}`}>
@@ -71,12 +61,12 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ author, message, onFinishedTypi
       </div>
       <div>
         <div className="flex flex-col ml-4">
-          <h4 className={`font-medium text-sm ${userColor}`}>{isBot ? "AI Career Consultant" : "You"}</h4>
+          <h4 className={`font-bold text-sm ${userColor}`}>{isBot ? "AI Career Consultant" : "You"}</h4>
           <p className="break-words text-sm list-inside">
-            {displayMessage.length === 0 ? (
+            {message.length === 0 ? (
               <Skeleton className="w-full h-4 rounded-full bg-blue-200" />
             ) : (
-              <ReactMarkdown>{displayMessage}</ReactMarkdown>
+              <ReactMarkdown className="[&>p]:mb-2 [&>ul]:mb-2 [&>ol]:mb-2 [&>*:last-child]:mb-0">{message}</ReactMarkdown>
             )}
           </p>
         </div>

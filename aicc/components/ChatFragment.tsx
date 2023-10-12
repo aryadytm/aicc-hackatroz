@@ -3,9 +3,10 @@ import ChatBubble from "./ChatBubble"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { ChatItem } from "@/lib/models/ChatItem"
+import { useEffect, useRef } from "react"
 
 interface ChatFragmentProps {
-  messages?: Array<ChatItem>
+  messages: ChatItem[]
   className?: string
   messageFieldValue?: string
   isButtonEnabled?: boolean
@@ -25,6 +26,18 @@ const ChatFragment: React.FC<ChatFragmentProps> = ({
   onKeyDown,
   onFinishedTyping
 }) => {
+  
+  const ref = useRef<HTMLDivElement>(null)
+  
+  useEffect(() => {
+    if (messages.length) {
+      ref.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+      })
+    }
+  }, [messages])
+  
   return (
     <div className={twMerge("", className)}>
       <div className="flex-grow flex flex-col">
@@ -40,6 +53,7 @@ const ChatFragment: React.FC<ChatFragmentProps> = ({
                   onFinishedTyping={onFinishedTyping}
                 />
               ))}
+            <div className="" ref={ref}></div>
           </div>
         </div>
 
