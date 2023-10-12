@@ -11,4 +11,4 @@ services:
     - TZ=Asia/Jakarta
     command: sh -c "cd /workdir && sudo apt update -y && cat packages.txt | xargs sudo apt install -y && pip install -r requirements.txt && python main.py"
     ports:
-	      - 0.0.0.0:51323:51323
+    - 0.0.0.0:51323:51323
