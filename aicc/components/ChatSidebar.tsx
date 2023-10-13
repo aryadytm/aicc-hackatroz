@@ -62,7 +62,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ className, onDownloadChatClic
         <Link href="/">
           <div className="flex flex-row bg-red-100 rounded-full p-2 m-2 mb-4 hover:bg-red-200">
             <SlLogout size={14} className="my-auto ml-2" />
-            <p className="ml-4 my-auto font-medium">Sign out</p>
+            <p className="ml-4 my-auto font-medium">Back to home</p>
           </div>
         </Link>
       </div>
