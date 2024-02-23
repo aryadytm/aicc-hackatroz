@@ -1,4 +1,4 @@
-linkedin-api @ git+https://github.com/tomquirk/linkedin-api.git@766f56199b69b9c6ed988080bec19d77ad9bc03d
+git+https://github.com/tomquirk/linkedin-api.git
 fastapi[all]
 PyMuPDF==1.23.4
 Pillow==9.5.0
